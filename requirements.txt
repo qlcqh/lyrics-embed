@@ -1,3 +1,2 @@
 Flask>=2.1.2
 mutagen>=1.45.1
-Werkzeug>=2.0.0
