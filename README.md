@@ -1,8 +1,10 @@
-# MP3歌词嵌入工具
+# MP3歌词嵌入工具 (MP3 Lyrics Embedder)
 
 一个在线工具，用于将LRC歌词嵌入MP3文件。
+An online tool for embedding LRC lyrics into MP3 files.
 
-## 在线使用
+
+## 在线使用 (Online Usage)
 👉 [点击这里使用](https://lyrics-embed.vercel.app/)
 
 
