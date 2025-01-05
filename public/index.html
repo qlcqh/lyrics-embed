@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MP3歌词嵌入工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 12px;
+            text-align: center;
+            margin: 8px 0;
+            border-radius: 8px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #4CAF50;
+            background: #f0f9f0;
+        }
+        .notice {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .notice h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+        .notice ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .notice li {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 12px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .file-info {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-button {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .file-button:hover {
+            background: #d0d0d0;
+        }
+        .donate-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .donate-section h3 {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .donate-section p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .donate-button {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 8px 0;
+            width: auto;
+        }
+        .qr-code {
+            margin: 10px auto;
+            max-width: 200px;
+            transition: all 0.3s ease;
+        }
+        .qr-code img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .qr-code p {
+            margin-top: 5px;
+            color: #666;
+        }
+        .upload-area h3 {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .upload-area p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="text-align: center; color: #333; margin: 5px 0 15px;">MP3歌词嵌入工具</h2>
+
+        <div class="notice">
+            <h3>使用说明：</h3>
+            <ul>
+                <li>MP3文件大小限制：50MB</li>
+                <li>LRC文件大小限制：1MB</li>
+                <li>文件名请勿使用特殊字符</li>
+                <li>处理大文件可能需要等待较长时间</li>
+                <li>每天处理数量有限，请合理使用</li>
+            </ul>
+        </div>
+
+        <div class="upload-area" id="mp3Drop">
+            <h3>MP3文件</h3>
+            <label class="file-button">
+                选择文件
+                <input type="file" id="mp3File" accept=".mp3">
+            </label>
+            <p>或拖放MP3文件到这里</p>
+            <div id="mp3Info" class="file-info"></div>
+        </div>
+
+        <div class="upload-area" id="lrcDrop">
+            <h3>LRC文件</h3>
+            <label class="file-button">
+                选择文件
+                <input type="file" id="lrcFile" accept=".lrc">
+            </label>
+            <p>或拖放LRC文件到这里</p>
+            <div id="lrcInfo" class="file-info"></div>
+        </div>
+
+        <button onclick="embedLyrics()">嵌入歌词</button>
+
+        <div class="donate-section">
+            <h3>支持作者</h3>
+            <p>如果能帮助到亲们，随意打赏支持！您的鼓励是我前行的动力</p>
+            <button class="donate-button" onclick="toggleQRCode()">随意打赏</button>
+            <div class="qr-code" id="qrCode" style="display: none;">
+                <img src="static/wxpay.jpg" alt="微信支付">
+                <p>微信扫码打赏</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loadingOverlay">
+        <div class="loading-content">
+            <h3>正在处理...</h3>
+            <p>请稍候，文件处理完成后会自动下载</p>
+        </div>
+    </div>
+
+    <script>
+        function updateFileInfo(file, infoId) {
+            const info = document.getElementById(infoId);
+            if (file) {
+                const size = (file.size / (1024 * 1024)).toFixed(2);
+                info.textContent = `文件名: ${file.name} (${size}MB)`;
+            } else {
+                info.textContent = '';
+            }
+        }
+
+        document.getElementById('mp3File').onchange = function() {
+            updateFileInfo(this.files[0], 'mp3Info');
+        };
+        document.getElementById('lrcFile').onchange = function() {
+            updateFileInfo(this.files[0], 'lrcInfo');
+        };
+
+        ['mp3Drop', 'lrcDrop'].forEach(id => {
+            const element = document.getElementById(id);
+            element.ondragover = e => {
+                e.preventDefault();
+                element.style.background = '#e8f5e9';
+            };
+            element.ondragleave = () => {
+                element.style.background = '#fafafa';
+            };
+            element.ondrop = e => {
+                e.preventDefault();
+                element.style.background = '#fafafa';
+                const file = e.dataTransfer.files[0];
+                const fileType = id === 'mp3Drop' ? '.mp3' : '.lrc';
+                if (file.name.toLowerCase().endsWith(fileType)) {
+                    const input = document.getElementById(id === 'mp3Drop' ? 'mp3File' : 'lrcFile');
+                    input.files = e.dataTransfer.files;
+                    updateFileInfo(file, id === 'mp3Drop' ? 'mp3Info' : 'lrcInfo');
+                } else {
+                    alert(`请选择${fileType}文件`);
+                }
+            };
+        });
+
+        function checkFileSize(file, maxSize, type) {
+            if (file.size > maxSize) {
+                alert(`${type}文件过大，请上传${maxSize/1024/1024}MB以内的文件`);
+                return false;
+            }
+            return true;
+        }
+
+        function toggleQRCode() {
+            const qrCode = document.getElementById('qrCode');
+            if (qrCode.style.display === 'none') {
+                qrCode.style.display = 'block';
+            } else {
+                qrCode.style.display = 'none';
+            }
+        }
+
+        async function embedLyrics() {
+            const mp3File = document.getElementById('mp3File').files[0];
+            const lrcFile = document.getElementById('lrcFile').files[0];
+
+            if (!mp3File || !lrcFile) {
+                alert('请选择MP3和LRC文件');
+                return;
+            }
+
+            if (!checkFileSize(mp3File, 50 * 1024 * 1024, 'MP3') ||
+                !checkFileSize(lrcFile, 1 * 1024 * 1024, 'LRC')) {
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                const formData = new FormData();
+                formData.append('mp3', mp3File);
+                formData.append('lrc', lrcFile);
+
+                const response = await fetch('/api/embed', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                loadingOverlay.style.display = 'none';
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${mp3File.name.replace('.mp3', '')}_带歌词.mp3`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    alert('歌词嵌入成功！请检查下载的文件。');
+
+                    document.getElementById('mp3File').value = '';
+                    document.getElementById('lrcFile').value = '';
+                    document.getElementById('mp3Info').textContent = '';
+                    document.getElementById('lrcInfo').textContent = '';
+                } else {
+                    const error = await response.text();
+                    alert('处理失败：' + error);
+                }
+            } catch (error) {
+                loadingOverlay.style.display = 'none';
+                alert('发生错误：' + error);
+            }
+        }
+    </script>
+</body>
+</html>
